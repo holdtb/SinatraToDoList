@@ -29,23 +29,23 @@ class TodoList < Sinatra::Base
   end
 
   post "/done" do
-    item = Item.first(:id => params[:id])
+    item = Item.first(:_id => params[:_id])
     item.done = !item.done
     item.save
     content_type 'application/json'
     value = item.done ? 'done' : 'not done'
-    {:id => params[:id], :status => value}.to_json
+    {:_id => params[:_id], :status => value}.to_json
   end
 
   get "/delete/:id" do
-    @item = Item.first(:id => params[:id])
+    #@item = Item.first(:_id => params[:id])
+    @item = Item.find_one({:_id => BSON::ObjectId(params[:id])})
     erb :delete
   end
 
   post "/delete/:id" do
     if params.has_key?("ok")
-      item = Item.first(:id => params[:id])
-      item.destroy
+      item = Item.remove({:_id => BSON::ObjectId(params[:id])})
       redirect '/'
     else
       redirect '/'
